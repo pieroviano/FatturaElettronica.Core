@@ -67,8 +67,11 @@ namespace FatturaElettronica.Common
 
                             if (objectType.IsGenericList())
                             {
+#if NET40
+                                elementType = objectType.GetGenericTypeDefinition().GetGenericArguments().Single();
+#else
                                 elementType = objectType.GetTypeInfo().GenericTypeArguments.Single();
-
+#endif
                                 var newObject = Activator.CreateInstance(elementType);
 
                                 var add = objectType.GetMethod("Add");
@@ -141,7 +144,11 @@ namespace FatturaElettronica.Common
                             if (!objectType.IsGenericList())
                                 throw new JsonParseException($"Unexpected property type {objectType.FullName}", r);
 
+#if NET40
+                            elementType = objectType.GetGenericTypeDefinition().GetGenericArguments().Single();
+#else
                             elementType = objectType.GetTypeInfo().GenericTypeArguments.Single();
+#endif
 
                             var value = current.Child.GetValue(current.Value, null);
 
@@ -185,7 +192,11 @@ namespace FatturaElettronica.Common
 
                             if (current.Value.GetType().IsGenericList())
                             {
+#if NET40
+                                elementType = objectType.GetGenericTypeDefinition().GetGenericArguments().Single();
+#else
                                 elementType = objectType.GetTypeInfo().GenericTypeArguments.Single();
+#endif
 
                                 var add = objectType.GetMethod("Add");
                                 var value = Cast(elementType, r.Value);
@@ -325,7 +336,13 @@ namespace FatturaElettronica.Common
                     }
                     continue;
                 }
-                if (value is DateTime && XmlOptions.DateTimeFormat != null && !property.GetCustomAttributes<IgnoreXmlDateFormat>().Any())
+                if (value is DateTime && XmlOptions.DateTimeFormat != null &&
+#if NET40
+                    !property.GetCustomAttributes(true).Any(a=>a is IgnoreXmlDateFormat)
+#else
+                    !property.GetCustomAttributes<IgnoreXmlDateFormat>().Any()
+#endif
+                    )
                 {
                     w.WriteElementString(propertyName, ((DateTime)value).ToString(XmlOptions.DateTimeFormat));
                     continue;
@@ -445,7 +462,11 @@ namespace FatturaElettronica.Common
         private static void ReadXmlList(object propertyValue, Type propertyType, string elementName, XmlReader r)
         {
 
+#if NET40
+            var argumentType = propertyType.GetGenericTypeDefinition().GetGenericArguments().Single();
+#else
             var argumentType = propertyType.GetTypeInfo().GenericTypeArguments.Single();
+#endif
 
             // note that the 'canonical' call to GetRuntimeMethod returns null for some reason,
             // see http://stackoverflow.com/questions/21307845/runtimereflectionextensions-getruntimemethod-does-not-work-as-expected

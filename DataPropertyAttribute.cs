@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace FatturaElettronica.Common
@@ -13,7 +15,19 @@ namespace FatturaElettronica.Common
     public sealed class DataProperty : Attribute
     {
         private readonly int _order;
-        public DataProperty([CallerLineNumber]int order = 0) {
+        public DataProperty(
+#if !NET40
+            [CallerLineNumber]
+#endif
+            int order = 0) {
+#if NET40
+            if (order == 0)
+            {
+                StackTrace stackTrace = new StackTrace();
+                StackFrame frame = stackTrace.GetFrame(1);
+                order=frame.GetFileLineNumber();
+            }
+#endif
             _order = order;
         }
 

@@ -2,9 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+#if NET40
+using System.Diagnostics;
+#endif
 using System.Linq;
 using System.Reflection;
+#if !NET40
 using System.Runtime.CompilerServices;
+#endif
 
 namespace FatturaElettronica.Common
 {
@@ -26,7 +31,11 @@ namespace FatturaElettronica.Common
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        protected bool SetProperty<T>(ref T storage, T value,
+#if !NET40
+            [CallerMemberName] 
+#endif
+            string propertyName = null)
         {
             if (Equals(storage, value))
             {
@@ -34,11 +43,33 @@ namespace FatturaElettronica.Common
             }
 
             storage = value;
+#if NET40
+            if (propertyName == null)
+            {
+                StackTrace stackTrace = new StackTrace();
+                StackFrame frame = stackTrace.GetFrame(1);
+                MethodBase method = frame.GetMethod();
+                propertyName = method.Name.Replace("set_", "").Replace("get_", "");
+            }
+#endif
             OnPropertyChanged(propertyName);
             return true;
         }
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged(
+#if !NET40
+            [CallerMemberName] 
+#endif
+            string propertyName = null)
         {
+#if NET40
+            if (propertyName == null)
+            {
+                StackTrace stackTrace = new StackTrace();
+                StackFrame frame = stackTrace.GetFrame(1);
+                MethodBase method = frame.GetMethod();
+                propertyName = method.Name.Replace("set_", "").Replace("get_", "");
+            }
+#endif
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
@@ -105,10 +136,16 @@ namespace FatturaElettronica.Common
         /// <returns>A enumerable list of PropertyInfo instances.</returns>
         protected IEnumerable<PropertyInfo> GetAllDataProperties()
         {
+#if NET40
+            return GetType()
+                .GetProperties().Where(pi => pi.GetCustomAttributes(true).Any(a => a is DataProperty))
+                .OrderBy(pi => ((DataProperty)(pi.GetCustomAttributes(true).FirstOrDefault(a => a is DataProperty)))?.Order);
+#else
             return GetType()
                 .GetRuntimeProperties()
                 .Where(pi => pi.GetCustomAttributes<DataProperty>(true).Any())
                 .OrderBy(pi => pi.GetCustomAttribute<DataProperty>(true).Order);
+#endif
         }
 
 
