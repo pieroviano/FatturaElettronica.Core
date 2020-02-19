@@ -13,10 +13,11 @@
     <Description>Core services per la fatturazione elettronica sia tra privati che con la pubblica amministrazione italiana</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageId>FatturaElettronica.Core.PieroViano</PackageId>
   </PropertyGroup>
 
 <ItemGroup>
-    <None Include="LICENSE.txt" Pack="true" PackagePath=""/>
+    <None Include="LICENSE.txt" Pack="true" PackagePath="" />
 </ItemGroup>
 
   <ItemGroup>
