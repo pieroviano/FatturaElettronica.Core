@@ -68,7 +68,7 @@ namespace FatturaElettronica.Common
                             if (objectType.IsGenericList())
                             {
 #if NET40
-                                elementType = objectType.GetGenericTypeDefinition().GetGenericArguments().Single();
+                                elementType = objectType.GetGenericArguments().Single();
 #else
                                 elementType = objectType.GetTypeInfo().GenericTypeArguments.Single();
 #endif
@@ -145,7 +145,7 @@ namespace FatturaElettronica.Common
                                 throw new JsonParseException($"Unexpected property type {objectType.FullName}", r);
 
 #if NET40
-                            elementType = objectType.GetGenericTypeDefinition().GetGenericArguments().Single();
+                            elementType = objectType.GetGenericArguments().Single();
 #else
                             elementType = objectType.GetTypeInfo().GenericTypeArguments.Single();
 #endif
@@ -193,7 +193,7 @@ namespace FatturaElettronica.Common
                             if (current.Value.GetType().IsGenericList())
                             {
 #if NET40
-                                elementType = objectType.GetGenericTypeDefinition().GetGenericArguments().Single();
+                                elementType = objectType.GetGenericArguments().Single();
 #else
                                 elementType = objectType.GetTypeInfo().GenericTypeArguments.Single();
 #endif
@@ -463,7 +463,7 @@ namespace FatturaElettronica.Common
         {
 
 #if NET40
-            var argumentType = propertyType.GetGenericTypeDefinition().GetGenericArguments().Single();
+            var argumentType = propertyType.GetGenericArguments().Single();
 #else
             var argumentType = propertyType.GetTypeInfo().GenericTypeArguments.Single();
 #endif
